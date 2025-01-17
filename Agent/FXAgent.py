@@ -26,3 +26,7 @@ fx_agent = Agent(
         # deps_type=Deps
         retries=2
 )
+
+
+
+# fx_agent.run_sync("")
