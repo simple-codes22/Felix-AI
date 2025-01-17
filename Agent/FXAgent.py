@@ -29,7 +29,7 @@ fx_agent = Agent(
 
 async def main():
     async with fx_agent:
-        result = await fx_agent.run_sync("Hey Felix, can you login to my metatrader app, and get the information of the pair BTCUSDm and decide whether to buy or sell or hold a bit on the currency pair.")
+        result = await fx_agent.run_sync("Hey Felix, can you login to my metatrader app, and get the information of the pair BTCUSDm and place a trade if you find a trading opportunity")
         print(result)
         # result = await fx_agent.run_sync("use_indicators(pair='BTCUSDm')")
         # print(result)
