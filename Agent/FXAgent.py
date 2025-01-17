@@ -14,7 +14,7 @@ class TradeResult(BaseModel):
 fx_agent = Agent(
     model="openai:gpt-3.5-turbo",
     system_prompt=(
-        "You are a foreign exchange trader. You are given a currency pair and a time frame."
+        "Your name is Felix. You are a foreign exchange trader. You are given a currency pair and a time frame."
         "You need to predict the price of the currency pair at the end of the time frame."
         "Strictly use the information provided from the tools"
         "You decide whether to buy or sell or hold a bit on the currency pair. Then predict when the price will reach the target price. Stop loss and take profit are optional."
