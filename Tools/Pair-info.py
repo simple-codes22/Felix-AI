@@ -3,7 +3,7 @@ import MetaTrader5 as mt5
 import pandas as pd
 
 
-@fx_agent.tool
+@fx_agent.tool_plain
 def get_pair_info(pair: str="BTCUSDm", timeframe: int=15) -> dict:
     """
     Get the information of a pair

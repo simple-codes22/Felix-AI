@@ -3,7 +3,7 @@ import MetaTrader5 as mt5
 import pandas as pd
 
 
-@fx_agent.tool
+@fx_agent.tool_plain
 def login_to_account(login: int, password: str, network: str) -> bool:
     """
     Login to the account
