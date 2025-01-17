@@ -1,17 +1,20 @@
 from Agent.FXAgent import fx_agent
 import MetaTrader5 as mt5
-import pandas as pd
+# import pandas as pd
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
 @fx_agent.tool_plain
-def login_to_account(login: int, password: str, network: str) -> bool:
+def login_to_account() -> bool:
     """
     Login to the account
     """
     mt5.initialize()
-    mt5.login(login, password, network)
-    if mt5.login(login, password, network):
+    login = mt5.login(int(os.getenv("LOGIN")), os.getenv("PASSWORD"), os.getenv("SERVER"))
+    if login:
         return True
     else:
         return False
-
