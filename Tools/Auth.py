@@ -14,3 +14,4 @@ def login_to_account(login: int, password: str, network: str) -> bool:
         return True
     else:
         return False
+

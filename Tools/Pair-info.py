@@ -4,13 +4,13 @@ import pandas as pd
 
 
 @fx_agent.tool
-def get_pair_info(pair: str="BTCUSDm") -> dict:
+def get_pair_info(pair: str="BTCUSDm", timeframe: int=15) -> dict:
     """
     Get the information of a pair
     """
     if not mt5.initialize():
         return {"error": "Failed to initialize MetaTrader5"}
-    pair_info = mt5.copy_rates_from_pos(pair, mt5.TIMEFRAME_M15, 0, 100)
+    pair_info = mt5.copy_rates_from_pos(pair, timeframe, 0, 100)
     if pair_info is None:
         return {"error": "Failed to get pair information"}
     
