@@ -4,14 +4,14 @@ import MetaTrader5 as mt5
 
 
 @fx_agent.tool_plain
-async def execute_trade(symbol: str, action, lot_size, number_of_orders: int=1):
+async def execute_trade(symbol: str, action, lot_size, number_of_orders: int=1) -> str:
     """
     Execute a trade
     """
     symbol_info = mt5.symbol_info(symbol)
     if symbol_info is None:
         print(f"{symbol} not found.")
-        return
+        return f"{symbol} not found. Check if mt5 is logged in"
     if not symbol_info.visible:
         if not mt5.symbol_select(symbol, True):
             print(f"Failed to select {symbol}")
@@ -39,8 +39,10 @@ async def execute_trade(symbol: str, action, lot_size, number_of_orders: int=1):
         result = mt5.order_send(request)
         if result.retcode != mt5.TRADE_RETCODE_DONE:
             print(f"Order failed. Retcode: {result}")
+            return f"Order failed. Retcode: {result}"
         else:
             print(f"Order executed. {result}")
+            return f"Order executed. {result}"
 
 
 

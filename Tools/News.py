@@ -3,13 +3,15 @@ import requests
 import json
 from dotenv import load_dotenv
 from Agent.FXAgent import fx_agent
+import datetime
+import pytz
 import os
 
 load_dotenv()
 
 
 @fx_agent.tool_plain
-def get_news():
+def get_news() -> list:
     url = os.getenv('NEWS_API_URL')
     try:
         response = requests.get(url)
@@ -34,3 +36,11 @@ def get_news():
     except Exception as e:
         print('Error getting news:', e)
         return None
+    
+
+
+@fx_agent.tool_plain
+def get_utc_time() -> datetime.datetime:
+    date_time = datetime.datetime.now()
+    utc_time = date_time.astimezone(pytz.utc)
+    return utc_time

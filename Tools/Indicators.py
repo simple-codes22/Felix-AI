@@ -3,11 +3,22 @@ from Agent.FXAgent import fx_agent
 
 
 @fx_agent.tool
-def use_indicators(pair: str="BTCUSDm") -> dict:
+def use_indicators(structured_pair_info) -> dict:
     """
     Get the indicators of a pair
     """
-    return
+    bollinger = bollinger_bands(structured_pair_info)
+    moving_average = moving_average_crossover(structured_pair_info)
+    rsi = analyse_rsi(structured_pair_info)
+
+
+    return {
+        "bollinger_details": bollinger[-5:],
+        "moving_average_details": moving_average,
+        "rsi_details": rsi
+    }
+
+
 
 
 
@@ -15,8 +26,7 @@ def bollinger_bands(rates, period=20, std_multiplier=2):
     if rates is None or len(rates) < period:
         return {"signal": "hold", "reason": "Not enough data for Bollinger Bands."}
 
-    df = pd.DataFrame(rates)
-    df['time'] = pd.to_datetime(df['time'], unit='s')
+    df = rates
     # print(df.tail())
 
     df['sma'] = df['close'].rolling(window=period).mean()
@@ -25,8 +35,8 @@ def bollinger_bands(rates, period=20, std_multiplier=2):
     df['lower_band'] = df['sma'] - std_multiplier * df['std']
 
     response = []
-    last_candle = df.iloc[-2]
-    current_candle = df.iloc[-1]
+    # last_candle = df.iloc[-2]
+    # current_candle = df.iloc[-1]
 
     # if detect_candle_reversal_from_cons_trends_bollinger_bands(last_candle, current_candle, "buy"):
     #     response.append({"time": current_candle["time"], "signal": "buy", "close": current_candle['close'], "lower_band": current_candle['lower_band']})
@@ -53,8 +63,9 @@ def moving_average_crossover(rates, short_period=9, long_period=21):
     if rates is None or len(rates) < long_period:
         return {"signal": "hold", "reason": "Not enough data for moving averages."}
 
-    df = pd.DataFrame(rates)
-    df['time'] = pd.to_datetime(df['time'], unit='s')
+    # df = pd.DataFrame(rates)
+    # df['time'] = pd.to_datetime(df['time'], unit='s')
+    df = rates
     # print(df)
 
     df['short_ma'] = df['close'].rolling(window=short_period).mean()
@@ -103,7 +114,7 @@ def analyse_rsi(data):
         return {"error": "No data retrieved."}
 
     # Create a DataFrame
-    df = pd.DataFrame(data)
+    df = data
 
     # Convert 'time' from timestamp to a readable datetime
     df['time'] = pd.to_datetime(df['time'], unit='s')

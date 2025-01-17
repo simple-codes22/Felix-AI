@@ -4,7 +4,7 @@ import pandas as pd
 
 
 @fx_agent.tool_plain
-def get_pair_info(pair: str="BTCUSDm", timeframe: int=15) -> dict:
+def get_pair_info(pair: str="BTCUSDm", timeframe: int=15) -> pd.DataFrame:
     """
     Get the information of a pair
     """
