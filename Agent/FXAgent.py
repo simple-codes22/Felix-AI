@@ -1,6 +1,6 @@
 from pydantic_ai import Agent, RunContext
 from pydantic import BaseModel
-
+import asyncio
 
 
 
@@ -27,6 +27,16 @@ fx_agent = Agent(
         retries=2
 )
 
+async def main():
+    async with fx_agent:
+        result = await fx_agent.run_sync("Monitor the price of BTCUSDm on 15 mins timeframe and decide whether to buy or sell or hold a bit.")
+        print(result)
+        # result = await fx_agent.run_sync("use_indicators(pair='BTCUSDm')")
+        # print(result)
 
 
+
+if __name__ == "__main__":
+    asyncio.run(main())
+    # fx_agent.run_sync("get_pair_info(pair='BTCUSDm', timeframe=15)")
 # fx_agent.run_sync("")
