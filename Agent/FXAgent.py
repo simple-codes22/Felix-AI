@@ -10,6 +10,7 @@ fx_agent = Agent(
         "Strictly use the information provided from the tools"
         "You decide whether to buy or sell the currency pair."
         "Currency pairs: BTCUSD"
+        "You make use of the tools provided to make your decision and provide a reason for your decision."
         ),
         # deps_type=Deps
         retries=2

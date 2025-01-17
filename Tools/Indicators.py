@@ -1,6 +1,7 @@
 import pandas as pd
 from Agent.FXAgent import fx_agent
 
+
 @fx_agent.tool
 def use_indicators(pair: str="BTCUSDm") -> dict:
     """
@@ -73,5 +74,53 @@ def moving_average_crossover(rates, short_period=9, long_period=21):
         return response
 
 
+def calculate_rsi(prices, period=14):
+    delta = prices.diff()
+    up = delta.clip(lower=0)  # Positive gains (up moves)
+    down = -delta.clip(upper=0)  # Negative gains (down moves)
+
+    ema_up = up.ewm(span=period, adjust=False).mean()  # Exponential Moving Average for gains
+    ema_down = down.ewm(span=period, adjust=False).mean()  # EMA for losses
+
+    rs = ema_up / ema_down  # Relative strength
+    rsi = 100 - (100 / (1 + rs))  # RSI formula
+
+    return rsi
 
 
+def analyse_rsi(data):
+    """
+        Analyse the RSI of a given currency pair and timeframe.
+        returns the last 5 RSI values and signals based on the RSI values.
+    """
+
+
+    # Load historical data from MetaTrader 5
+    # data = mt5.copy_rates_from_pos(pair, timeframe, 0, 10)
+
+    # Check if data is retrieved
+    if data is None or len(data) == 0:
+        return {"error": "No data retrieved."}
+
+    # Create a DataFrame
+    df = pd.DataFrame(data)
+
+    # Convert 'time' from timestamp to a readable datetime
+    df['time'] = pd.to_datetime(df['time'], unit='s')
+
+    # Calculate RSI
+    df['RSI'] = calculate_rsi(df['close'], period=14)
+
+    # Print the last few rows
+
+    response = []
+
+    for index, row in df.tail(5).iterrows():
+        if row["RSI"] > 76.03:
+            response.append({"time": row["time"], "RSI": row["RSI"], "signal": "sell"})
+        elif row["RSI"] < 21.7:
+            response.append({"time": row["time"], "RSI": row["RSI"], "signal": "buy"})
+        else:
+            response.append({"time": row["time"], "RSI": row["RSI"], "signal": "hold"})
+    
+    return response
