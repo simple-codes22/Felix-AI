@@ -100,7 +100,6 @@ def use_indicators(pair: str) -> dict:
     Returns the last 5 Bollinger Bands, Moving Average Crossover, and RSI details.
     You can use this information to make trading decisions.
     """
-    df = pd.DataFrame(pair)
     bollinger = bollinger_bands(pair)
     moving_average = moving_average_crossover(pair)
     rsi = analyse_rsi(pair)
