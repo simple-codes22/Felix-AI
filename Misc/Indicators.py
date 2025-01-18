@@ -3,7 +3,7 @@ import MetaTrader5 as mt5
 # from Agent.FXAgent import fx_agent
 
 
-def get_pair_info(pair: str, timeframe: int) -> dict:
+def get_pair_info(pair: str, timeframe: int):
     """
     Get the information of a pair from MetaTrader5 app
     example pair is "BTCUSDm" on the 15 minutes timeframe
@@ -21,15 +21,16 @@ def get_pair_info(pair: str, timeframe: int) -> dict:
     
     structured_pair_info = pd.DataFrame(pair_info)
     structured_pair_info['time'] = pd.to_datetime(structured_pair_info['time'], unit='s')
-    return structured_pair_info.to_dict(orient='records')
+    return structured_pair_info
 
 
 
-def bollinger_bands(rates: str, period=20, std_multiplier=2):
+def bollinger_bands(rates: str="BTCUSDm", period=20, std_multiplier=2) -> list:
     if rates is None:
         return {"signal": "hold", "reason": "Not enough data for Bollinger Bands."}
 
-    df = pd.DataFrame(get_pair_info(rates, mt5.TIMEFRAME_M15))
+    df = get_pair_info(rates, mt5.TIMEFRAME_M15)
+    print(df)
 
     df['sma'] = df['close'].rolling(window=period).mean()
     df['std'] = df['close'].rolling(window=period).std()
@@ -73,7 +74,7 @@ def moving_average_crossover(rates, short_period=9, long_period=21) -> dict:
     if rates is None:
         return {"signal": "hold", "reason": "Not enough data for moving averages."}
 
-    df = pd.DataFrame(get_pair_info(rates, mt5.TIMEFRAME_M15))
+    df = get_pair_info(rates, mt5.TIMEFRAME_M15)
 
     # Calculate moving averages
     df['short_ma'] = df['close'].rolling(window=short_period).mean()
@@ -121,7 +122,7 @@ def analyse_rsi(data: str) -> str:
         return {"error": "No data retrieved."}
 
     # Create a DataFrame
-    df = pd.DataFrame(get_pair_info(data, mt5.TIMEFRAME_M15))
+    df = get_pair_info(data, mt5.TIMEFRAME_M15)
 
     # Convert 'time' from timestamp to a readable datetime
     # df['time'] = pd.to_datetime(df['time'], unit='s')

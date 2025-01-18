@@ -19,7 +19,6 @@ async def main():
         result = await fx_agent.run(user_input, deps=dependencies)
         print(result.data)
         print(result.usage())
-        print(result.all_messages())
 
 
 if __name__ == "__main__":
