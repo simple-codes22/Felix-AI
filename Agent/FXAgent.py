@@ -51,7 +51,7 @@ fx_agent = Agent(
 
 
 
-
+# Agent tools
 
 @fx_agent.tool
 def login_to_account(ctx: RunContext[Deps]) -> bool:
@@ -74,25 +74,6 @@ def login_to_account(ctx: RunContext[Deps]) -> bool:
         return True
     else:
         return False
-
-
-@fx_agent.tool
-def use_indicators(structured_pair_info) -> dict:
-    """
-    Use technical indicators to analyse the given currency pair and timeframe.
-    Returns the last 5 Bollinger Bands, Moving Average Crossover, and RSI details.
-    You can use this information to make trading decisions.
-    """
-    bollinger = bollinger_bands(structured_pair_info)
-    moving_average = moving_average_crossover(structured_pair_info)
-    rsi = analyse_rsi(structured_pair_info)
-
-
-    return {
-        "bollinger_details": bollinger[-5:],
-        "moving_average_details": moving_average,
-        "rsi_details": rsi
-    }
 
 
 @fx_agent.tool
@@ -119,6 +100,25 @@ def get_pair_info(ctx: RunContext[Deps]) -> pd.DataFrame:
     
     return structured_pair_info
 
+
+
+@fx_agent.tool
+def use_indicators(structured_pair_info) -> dict:
+    """
+    Use technical indicators to analyse the given currency pair and timeframe.
+    Returns the last 5 Bollinger Bands, Moving Average Crossover, and RSI details.
+    You can use this information to make trading decisions.
+    """
+    bollinger = bollinger_bands(structured_pair_info)
+    moving_average = moving_average_crossover(structured_pair_info)
+    rsi = analyse_rsi(structured_pair_info)
+
+
+    return {
+        "bollinger_details": bollinger[-5:],
+        "moving_average_details": moving_average,
+        "rsi_details": rsi
+    }
 
 
 
