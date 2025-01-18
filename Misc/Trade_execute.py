@@ -17,9 +17,11 @@ def get_tp_sl(symbol, trade_type, stop_loss_pct=0.0075, take_profit_pct=0.015, p
     if pip_value is None:
         pip_value = 0.01  # Default to raw percentage calculations if pip_value is not provided
     
-    
     try:
+        # Get symbol information from MetaTrader 5
         symbol_info = mt5.symbol_info(symbol)._asdict()
+        
+        # Determine entry price and calculate stop-loss and take-profit levels based on trade type
         if trade_type.lower() == "buy":
             entry_price = symbol_info['ask']
             stop_loss = entry_price - (entry_price * stop_loss_pct)
@@ -40,5 +42,6 @@ def get_tp_sl(symbol, trade_type, stop_loss_pct=0.0075, take_profit_pct=0.015, p
             "take_profit": round(take_profit, 5)
         }
     except Exception as err:
+        # Print error message if any exception occurs
         print(f"Error: {err}")
         return None

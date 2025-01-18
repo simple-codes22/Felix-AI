@@ -2,7 +2,6 @@ import pandas as pd
 import MetaTrader5 as mt5
 # from Agent.FXAgent import fx_agent
 
-
 def get_pair_info(pair: str, timeframe: int):
     """
     Get the information of a pair from MetaTrader5 app
@@ -23,15 +22,25 @@ def get_pair_info(pair: str, timeframe: int):
     structured_pair_info['time'] = pd.to_datetime(structured_pair_info['time'], unit='s')
     return structured_pair_info
 
-
-
 def bollinger_bands(rates: str="BTCUSDm", period=20, std_multiplier=2) -> list:
+    """
+    Calculate Bollinger Bands for a given currency pair.
+
+    Args:
+    rates: str
+    period: int
+    std_multiplier: int
+
+    Returns:
+    list: Signals based on Bollinger Bands
+    """
     if rates is None:
         return {"signal": "hold", "reason": "Not enough data for Bollinger Bands."}
 
     df = get_pair_info(rates, mt5.TIMEFRAME_M15)
     print(df)
 
+    # Calculate Simple Moving Average (SMA) and Standard Deviation (STD)
     df['sma'] = df['close'].rolling(window=period).mean()
     df['std'] = df['close'].rolling(window=period).std()
     df['upper_band'] = df['sma'] + std_multiplier * df['std']
@@ -39,7 +48,7 @@ def bollinger_bands(rates: str="BTCUSDm", period=20, std_multiplier=2) -> list:
 
     response = []
     
-
+    # Generate signals based on Bollinger Bands
     for index, row in df.tail(2).iterrows():
         last_high = row['high']
         last_low = row['low']
@@ -51,9 +60,18 @@ def bollinger_bands(rates: str="BTCUSDm", period=20, std_multiplier=2) -> list:
             response.append({"index": index, "signal": "hold", "reason": "Price within Bollinger Bands."})
     return response
 
-
-
 def bb_reversal(last_candle, current_candle, signal) -> bool:
+    """
+    Determine if there is a reversal signal based on Bollinger Bands.
+
+    Args:
+    last_candle: dict
+    current_candle: dict
+    signal: str
+
+    Returns:
+    bool: True if reversal signal is detected, False otherwise
+    """
     if signal == "buy":
         return (
             current_candle['close'] > last_candle['close']
@@ -68,9 +86,18 @@ def bb_reversal(last_candle, current_candle, signal) -> bool:
         )
     return False
 
-
-
 def moving_average_crossover(rates, short_period=9, long_period=21) -> dict:
+    """
+    Calculate moving average crossover signals.
+
+    Args:
+    rates: str
+    short_period: int
+    long_period: int
+
+    Returns:
+    dict: Signals based on moving average crossover
+    """
     if rates is None:
         return {"signal": "hold", "reason": "Not enough data for moving averages."}
 
@@ -82,6 +109,7 @@ def moving_average_crossover(rates, short_period=9, long_period=21) -> dict:
 
     response = {}
 
+    # Generate signals based on moving average crossover
     if df['short_ma'].iloc[-1] > df['long_ma'].iloc[-1] and ((df['short_ma'].iloc[-2] < df['long_ma'].iloc[-2]) or (df["short_ma"].iloc[-3] < df["long_ma"].iloc[-3])):
         response = {"signal": "buy", "short_ma": df['short_ma'].iloc[-1],  "long_ma": df['long_ma'].iloc[-1]}
         return response
@@ -92,8 +120,17 @@ def moving_average_crossover(rates, short_period=9, long_period=21) -> dict:
         response = {"signal": "hold", "reason": "No crossover detected."}
         return response
 
-
 def calculate_rsi(prices, period=14):
+    """
+    Calculate the Relative Strength Index (RSI).
+
+    Args:
+    prices: pd.Series
+    period: int
+
+    Returns:
+    pd.Series: RSI values
+    """
     delta = prices.diff()
     up = delta.clip(lower=0)  # Positive gains (up moves)
     down = -delta.clip(upper=0)  # Negative gains (down moves)
@@ -106,14 +143,17 @@ def calculate_rsi(prices, period=14):
 
     return rsi
 
-
 def analyse_rsi(data: str) -> str:
     """
-        Analyse the RSI of a given currency pair and timeframe.
-        returns the last 2 RSI values and signals based on the RSI values.
+    Analyse the RSI of a given currency pair and timeframe.
+    Returns the last 2 RSI values and signals based on the RSI values.
+
+    Args:
+    data: str
+
+    Returns:
+    str: Analysis of RSI values
     """
-
-
     # Load historical data from MetaTrader 5
     # data = mt5.copy_rates_from_pos(pair, timeframe, 0, 10)
 
@@ -131,9 +171,9 @@ def analyse_rsi(data: str) -> str:
     df['RSI'] = calculate_rsi(df['close'], period=14)
 
     # Print the last few rows
-
     response = []
 
+    # Generate signals based on RSI values
     for index, row in df.tail(2).iterrows():
         if row["RSI"] > 76.03:
             response.append(row["RSI"])

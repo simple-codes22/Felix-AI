@@ -13,34 +13,24 @@ import os
 
 load_dotenv()
 
-
-# class TradeResult(BaseModel):
-#     signal: str
-#     reason: str
-#     tp: float | None
-#     sl: float | None
-#     entry: float | None
-
+# Define dependencies for the agent
 class Deps(BaseModel):
     pair: str
     timeframe: int
     login: int
     password: str
     server: str
-    # utc_time: str
 
-
+# Initialize the GPT model with the API key
 gpt_model = OpenAIModel('gpt-4o', api_key=os.getenv('OPENAI_API_KEY'))
 
+# Create an agent with the GPT model and dependencies
 fx_agent = Agent(
     model=gpt_model,
     deps_type=Deps,
     system_prompt=("You are Felix, a Forex trader. Predict the price at the end of a given time frame. Decide whether to buy, sell, or hold based on the tools provided. If holding, explain why and suggest when to place an entry order. Keep responses concise and precise. You trade on exness so every pair is suffixed with 'm'. If it's weekend, only trade BTCUSD"),
-        # deps_type=Deps
-        retries=2
+    retries=2
 )
-
-
 
 # Agent tools
 
@@ -57,7 +47,6 @@ def login_to_account(ctx: RunContext[Deps]) -> bool:
 
     Returns:
     bool: True if login is successful, False otherwise
-
     """
     mt5.initialize()
     login = mt5.login(ctx.deps.login, ctx.deps.password, ctx.deps.server)
@@ -65,7 +54,6 @@ def login_to_account(ctx: RunContext[Deps]) -> bool:
         return True
     else:
         return False
-
 
 @fx_agent.tool_plain
 def use_indicators(pair: str) -> dict:
@@ -83,8 +71,6 @@ def use_indicators(pair: str) -> dict:
         "moving_average_details": moving_average,
         "rsi_details": rsi
     }
-
-
 
 @fx_agent.tool_plain
 async def execute_trade(symbol: str, action: str, lot_size: float=0.01, number_of_orders: int=1) -> str:
@@ -136,9 +122,6 @@ async def execute_trade(symbol: str, action: str, lot_size: float=0.01, number_o
             print(f"Order executed. {result}")
             return f"Order executed. {result}"
 
-
-
-
 @fx_agent.tool_plain
 def get_news() -> list:
     """
@@ -157,26 +140,20 @@ def get_news() -> list:
             print('No news to analyze')
             return
         filtered_news_with_forecast = [event for event in news if event['forecast'] != '' and event['country'] in countries and event['impact'] in ['High', "Medium"]]
-        # print(filtered_news_with_forecast)
-        
-        # for event in filtered_news_with_forecast:
-        #     print(event['title'])
-        #     print(event['country'])
-        #     print(event['date'])
-        #     print(event['impact'])
-        #     print(event['forecast'])
-        #     print(event['previous'])
-        
         return filtered_news_with_forecast
         
     except Exception as e:
         print('Error getting news:', e)
         return None
-    
-
 
 @fx_agent.tool_plain
 def get_utc_time() -> datetime.datetime:
+    """
+    Get the current UTC time.
+
+    Returns:
+    datetime: The current UTC time.
+    """
     date_time = datetime.datetime.now()
     utc_time = date_time.astimezone(pytz.utc)
     return utc_time
