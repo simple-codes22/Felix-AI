@@ -14,12 +14,12 @@ import os
 load_dotenv()
 
 
-class TradeResult(BaseModel):
-    signal: str
-    reason: str
-    tp: float | None
-    sl: float | None
-    entry: float | None
+# class TradeResult(BaseModel):
+#     signal: str
+#     reason: str
+#     tp: float | None
+#     sl: float | None
+#     entry: float | None
 
 class Deps(BaseModel):
     pair: str
