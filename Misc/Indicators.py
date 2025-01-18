@@ -143,3 +143,7 @@ def analyse_rsi(data: str) -> str:
             response.append(row["RSI"])
     print(response)
     return f"High RSI Cap: 76.03, Low RSI Cap: 21.7. last 2 RSI values: {response}"
+
+
+
+
