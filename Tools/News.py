@@ -12,6 +12,13 @@ load_dotenv()
 
 @fx_agent.tool_plain
 def get_news() -> list:
+    """
+    Get news from the news api for the specific currency: USD, EUR, GBP, JPY
+    And filter the news to get only the high and medium impact news with forecast
+
+    Returns:
+    list: List
+    """
     url = os.getenv('NEWS_API_URL')
     try:
         response = requests.get(url)

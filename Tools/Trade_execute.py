@@ -4,9 +4,18 @@ import MetaTrader5 as mt5
 
 
 @fx_agent.tool_plain
-async def execute_trade(symbol: str, action, lot_size, number_of_orders: int=1) -> str:
+async def execute_trade(symbol: str, action: str, lot_size: float=0.01, number_of_orders: int=1) -> str:
     """
-    Execute a trade
+    Execute a trade on the MetaTrader 5 platform.
+
+    Args:
+    - symbol (str): The trading symbol (e.g., "EURUSD").
+    - action (str): "buy" or "sell".
+    - lot_size (float): The trade volume in lots.
+    - number_of_orders (int): The number of orders to execute (default: 1).
+
+    Returns:
+    - str: A message indicating the status of the trade
     """
     symbol_info = mt5.symbol_info(symbol)
     if symbol_info is None:

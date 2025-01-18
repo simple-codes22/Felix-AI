@@ -5,7 +5,9 @@ from Agent.FXAgent import fx_agent
 @fx_agent.tool
 def use_indicators(structured_pair_info) -> dict:
     """
-    Get the indicators of a pair
+    Use technical indicators to analyse the given currency pair and timeframe.
+    Returns the last 5 Bollinger Bands, Moving Average Crossover, and RSI details.
+    You can use this information to make trading decisions.
     """
     bollinger = bollinger_bands(structured_pair_info)
     moving_average = moving_average_crossover(structured_pair_info)
