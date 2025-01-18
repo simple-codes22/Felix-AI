@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def bollinger_bands(rates, period=20, std_multiplier=2):
-    if rates is None or len(rates) < period:
+    if rates is None:
         return {"signal": "hold", "reason": "Not enough data for Bollinger Bands."}
 
     df = rates
@@ -25,22 +25,22 @@ def bollinger_bands(rates, period=20, std_multiplier=2):
     #     response.append({"time": current_candle["time"], "signal": "sell", "close": current_candle['close'], "upper_band": current_candle['upper_band']})
     #     return response
     # else:
-    for index, row in df.tail(18).iterrows():
+    for index, row in df.tail(4).iterrows():
         last_high = row['high']
         last_low = row['low']
         if last_high > row['upper_band']:
-            response.append({"time": row["time"], "signal": "sell", "close": last_high, "upper_band": row['upper_band']})
+            response.append({"index": index, "signal": "sell", "close": last_high, "upper_band": row['upper_band']})
         elif last_low < row['lower_band']:
-            response.append({"time": row["time"], "signal": "buy", "close": last_low, "lower_band": row['lower_band']})
+            response.append({"index": index, "signal": "buy", "close": last_low, "lower_band": row['lower_band']})
         else:
-            response.append({"time": row["time"], "signal": "hold", "reason": "Price within Bollinger Bands."})
+            response.append({"index": index, "signal": "hold", "reason": "Price within Bollinger Bands."})
     return response
 
 
 
 
 def moving_average_crossover(rates, short_period=9, long_period=21):
-    if rates is None or len(rates) < long_period:
+    if rates is None:
         return {"signal": "hold", "reason": "Not enough data for moving averages."}
 
     # df = pd.DataFrame(rates)
@@ -56,12 +56,15 @@ def moving_average_crossover(rates, short_period=9, long_period=21):
 
     if df['short_ma'].iloc[-1] > df['long_ma'].iloc[-1] and ((df['short_ma'].iloc[-2] < df['long_ma'].iloc[-2]) or (df["short_ma"].iloc[-3] < df["long_ma"].iloc[-3])):
         response = {"signal": "buy", "short_ma": df['short_ma'].iloc[-1],  "long_ma": df['long_ma'].iloc[-1]}
+        print(response)
         return response
     elif df['short_ma'].iloc[-1] < df['long_ma'].iloc[-1] and ((df['short_ma'].iloc[-2] > df['long_ma'].iloc[-2]) or (df["short_ma"].iloc[-3] > df["long_ma"].iloc[-3])):
         response = {"signal": "sell", "short_ma": df['short_ma'].iloc[-1], "long_ma": df['long_ma'].iloc[-1]}
+        print(response)
         return response
     else:
         response = {"signal": "hold", "reason": "No crossover detected."}
+        print(response)
         return response
 
 
@@ -97,7 +100,7 @@ def analyse_rsi(data):
     df = data
 
     # Convert 'time' from timestamp to a readable datetime
-    df['time'] = pd.to_datetime(df['time'], unit='s')
+    # df['time'] = pd.to_datetime(df['time'], unit='s')
 
     # Calculate RSI
     df['RSI'] = calculate_rsi(df['close'], period=14)
@@ -106,7 +109,7 @@ def analyse_rsi(data):
 
     response = []
 
-    for index, row in df.tail(5).iterrows():
+    for index, row in df.tail(2).iterrows():
         if row["RSI"] > 76.03:
             response.append({"time": row["time"], "RSI": row["RSI"], "signal": "sell"})
         elif row["RSI"] < 21.7:

@@ -35,16 +35,7 @@ gpt_model = OpenAIModel('gpt-3.5-turbo', api_key=os.getenv('OPENAI_API_KEY'))
 fx_agent = Agent(
     model=gpt_model,
     deps_type=Deps,
-    system_prompt=(
-        "Your name is Felix. You are a Forex trader. You are given a currency pair and a time frame."
-        "You need to predict the price of the currency pair at the end of the time frame."
-        "Strictly use the information provided from tools"
-        "You decide whether to buy or sell or hold a bit on the currency pair."
-        "If your decision is to hold, provide a reason for your decision. Then predict when the price should be okay for a buy or sell one should place an entry order"
-        "Currency pairs: BTCUSD"
-        "You make use of the tools provided to make your decision and provide a reason for your decision."
-        "Your responses are not much, just straight to the point."
-        ),
+    system_prompt=("You are Felix, a Forex trader. Predict the BTCUSD price at the end of a given time frame. Decide whether to buy, sell, or hold based on the tools provided. If holding, explain why and suggest when to place an entry order. Keep responses concise and precise. You trade on exness so every pair is suffixed with 'm'."),
         # deps_type=Deps
         retries=2
 )
@@ -77,7 +68,7 @@ def login_to_account(ctx: RunContext[Deps]) -> bool:
 
 
 @fx_agent.tool
-def get_pair_info(ctx: RunContext[Deps]) -> pd.DataFrame:
+def get_pair_info(ctx: RunContext[Deps]) -> list:
     """
     Get the information of a pair from MetaTrader5 app
     example pair is "BTCUSDm" on the 15 minutes timeframe
@@ -87,7 +78,7 @@ def get_pair_info(ctx: RunContext[Deps]) -> pd.DataFrame:
     timeframe: int
 
     Returns:
-    pd.DataFrame: The information of the pair
+    list: The information of the pair as a list of dictionaries
     """
     if not mt5.initialize():
         return {"error": "Failed to initialize MetaTrader5"}
@@ -98,21 +89,21 @@ def get_pair_info(ctx: RunContext[Deps]) -> pd.DataFrame:
     structured_pair_info = pd.DataFrame(pair_info)
     structured_pair_info['time'] = pd.to_datetime(structured_pair_info['time'], unit='s')
     
-    return structured_pair_info
+    return structured_pair_info.to_dict(orient='records')
 
 
 
-@fx_agent.tool
-def use_indicators(structured_pair_info) -> dict:
+@fx_agent.tool_plain
+def use_indicators(structured_pair_info: list) -> dict:
     """
     Use technical indicators to analyse the given currency pair and timeframe.
     Returns the last 5 Bollinger Bands, Moving Average Crossover, and RSI details.
     You can use this information to make trading decisions.
     """
-    bollinger = bollinger_bands(structured_pair_info)
-    moving_average = moving_average_crossover(structured_pair_info)
-    rsi = analyse_rsi(structured_pair_info)
-
+    df = pd.DataFrame(structured_pair_info)
+    bollinger = bollinger_bands(df)
+    moving_average = moving_average_crossover(df)
+    rsi = analyse_rsi(df)
 
     return {
         "bollinger_details": bollinger[-5:],

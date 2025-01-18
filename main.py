@@ -17,7 +17,8 @@ async def main():
             break
         dependencies = Deps(pair='BTCUSDm', timeframe=15, login=int(os.getenv("LOGIN")), password=os.getenv("PASSWORD"), server=os.getenv("SERVER")) 
         result = await fx_agent.run(user_input, deps=dependencies)
-        print(result)
+        print(result.data)
+        print(result.usage())
 
 
 if __name__ == "__main__":
