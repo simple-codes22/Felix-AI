@@ -1,7 +1,7 @@
 # Forex Trading AI Agent (FELIX)
 
 ## Overview
-FELIX is an AI-powered Forex trading agent that uses technical indicators and news analysis to make trading decisions. It leverages the OpenAI GPT-4o model to predict price movements and decide whether to buy, sell, or hold a currency pair.
+FELIX is a simple AI-powered Forex trading agent that uses technical indicators and news analysis to make trading decisions. It leverages the OpenAI GPT-4o model to predict price movements and decide whether to buy, sell, or hold a currency pair.
 
 ## Features
 - Login to MetaTrader 5 account
