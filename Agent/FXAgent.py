@@ -30,12 +30,12 @@ class Deps(BaseModel):
     # utc_time: str
 
 
-gpt_model = OpenAIModel('gpt-3.5-turbo', api_key=os.getenv('OPENAI_API_KEY'))
+gpt_model = OpenAIModel('gpt-4o', api_key=os.getenv('OPENAI_API_KEY'))
 
 fx_agent = Agent(
     model=gpt_model,
     deps_type=Deps,
-    system_prompt=("You are Felix, a Forex trader. Predict the BTCUSD price at the end of a given time frame. Decide whether to buy, sell, or hold based on the tools provided. If holding, explain why and suggest when to place an entry order. Keep responses concise and precise. You trade on exness so every pair is suffixed with 'm'."),
+    system_prompt=("You are Felix, a Forex trader. Predict the price at the end of a given time frame. Decide whether to buy, sell, or hold based on the tools provided. If holding, explain why and suggest when to place an entry order. Keep responses concise and precise. You trade on exness so every pair is suffixed with 'm'. If it's weekend, only trade BTCUSD"),
         # deps_type=Deps
         retries=2
 )
@@ -65,32 +65,6 @@ def login_to_account(ctx: RunContext[Deps]) -> bool:
         return True
     else:
         return False
-
-
-# @fx_agent.tool
-# def get_pair_info(ctx: RunContext[Deps]) -> list:
-#     """
-#     Get the information of a pair from MetaTrader5 app
-#     example pair is "BTCUSDm" on the 15 minutes timeframe
-
-#     Args:
-#     pair: str
-#     timeframe: int
-
-#     Returns:
-#     list: The information of the pair as a list of dictionaries
-#     """
-#     if not mt5.initialize():
-#         return {"error": "Failed to initialize MetaTrader5"}
-#     pair_info = mt5.copy_rates_from_pos(ctx.deps.pair, ctx.deps.timeframe, 0, 20)
-#     if pair_info is None:
-#         return {"error": "Failed to get pair information"}
-    
-#     structured_pair_info = pd.DataFrame(pair_info)
-#     structured_pair_info['time'] = pd.to_datetime(structured_pair_info['time'], unit='s')
-    
-#     return structured_pair_info.to_dict(orient='records')
-
 
 
 @fx_agent.tool_plain

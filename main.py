@@ -5,11 +5,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 async def main():
     # Sample run
 
-    print("Hello I'm Felix, your trading assistant. How can I help you today?")
+    print("Hello I'm Felix, your trading agent. How can I help you today?")
     print("Type 'exit' to quit")
     while True:
         user_input = input("> ").strip()
@@ -19,7 +18,6 @@ async def main():
         result = await fx_agent.run(user_input, deps=dependencies)
         print(result.data)
         print(result.usage())
-
 
 if __name__ == "__main__":
     asyncio.run(main())
