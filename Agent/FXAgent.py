@@ -82,7 +82,7 @@ def get_pair_info(ctx: RunContext[Deps]) -> list:
     """
     if not mt5.initialize():
         return {"error": "Failed to initialize MetaTrader5"}
-    pair_info = mt5.copy_rates_from_pos(ctx.deps.pair, ctx.deps.timeframe, 0, 100)
+    pair_info = mt5.copy_rates_from_pos(ctx.deps.pair, ctx.deps.timeframe, 0, 6)
     if pair_info is None:
         return {"error": "Failed to get pair information"}
     

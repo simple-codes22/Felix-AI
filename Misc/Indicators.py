@@ -7,7 +7,6 @@ def bollinger_bands(rates, period=20, std_multiplier=2):
         return {"signal": "hold", "reason": "Not enough data for Bollinger Bands."}
 
     df = rates
-    # print(df.tail())
 
     df['sma'] = df['close'].rolling(window=period).mean()
     df['std'] = df['close'].rolling(window=period).std()
@@ -15,17 +14,9 @@ def bollinger_bands(rates, period=20, std_multiplier=2):
     df['lower_band'] = df['sma'] - std_multiplier * df['std']
 
     response = []
-    # last_candle = df.iloc[-2]
-    # current_candle = df.iloc[-1]
+    
 
-    # if detect_candle_reversal_from_cons_trends_bollinger_bands(last_candle, current_candle, "buy"):
-    #     response.append({"time": current_candle["time"], "signal": "buy", "close": current_candle['close'], "lower_band": current_candle['lower_band']})
-    #     return response
-    # elif detect_candle_reversal_from_cons_trends_bollinger_bands(last_candle, current_candle, "sell"):
-    #     response.append({"time": current_candle["time"], "signal": "sell", "close": current_candle['close'], "upper_band": current_candle['upper_band']})
-    #     return response
-    # else:
-    for index, row in df.tail(4).iterrows():
+    for index, row in df.tail(2).iterrows():
         last_high = row['high']
         last_low = row['low']
         if last_high > row['upper_band']:
@@ -38,33 +29,44 @@ def bollinger_bands(rates, period=20, std_multiplier=2):
 
 
 
+def bb_reversal(last_candle, current_candle, signal) -> bool:
+    if signal == "buy":
+        return (
+            current_candle['close'] > last_candle['close']
+            and current_candle['close'] > current_candle['lower_band']
+            and last_candle['close'] < last_candle['lower_band']
+        )
+    if signal == "sell":
+        return (
+            current_candle['close'] < last_candle['close']
+            and current_candle['close'] < current_candle['upper_band']
+            and last_candle['close'] > last_candle['upper_band']
+        )
+    return False
 
-def moving_average_crossover(rates, short_period=9, long_period=21):
+
+
+def moving_average_crossover(rates, short_period=9, long_period=21) -> dict:
     if rates is None:
         return {"signal": "hold", "reason": "Not enough data for moving averages."}
 
-    # df = pd.DataFrame(rates)
-    # df['time'] = pd.to_datetime(df['time'], unit='s')
     df = rates
-    # print(df)
 
+
+    # Calculate moving averages
     df['short_ma'] = df['close'].rolling(window=short_period).mean()
     df['long_ma'] = df['close'].rolling(window=long_period).mean()
-    # Calculate moving averages
 
     response = {}
 
     if df['short_ma'].iloc[-1] > df['long_ma'].iloc[-1] and ((df['short_ma'].iloc[-2] < df['long_ma'].iloc[-2]) or (df["short_ma"].iloc[-3] < df["long_ma"].iloc[-3])):
         response = {"signal": "buy", "short_ma": df['short_ma'].iloc[-1],  "long_ma": df['long_ma'].iloc[-1]}
-        print(response)
         return response
     elif df['short_ma'].iloc[-1] < df['long_ma'].iloc[-1] and ((df['short_ma'].iloc[-2] > df['long_ma'].iloc[-2]) or (df["short_ma"].iloc[-3] > df["long_ma"].iloc[-3])):
         response = {"signal": "sell", "short_ma": df['short_ma'].iloc[-1], "long_ma": df['long_ma'].iloc[-1]}
-        print(response)
         return response
     else:
         response = {"signal": "hold", "reason": "No crossover detected."}
-        print(response)
         return response
 
 
@@ -82,10 +84,10 @@ def calculate_rsi(prices, period=14):
     return rsi
 
 
-def analyse_rsi(data):
+def analyse_rsi(data) -> str:
     """
         Analyse the RSI of a given currency pair and timeframe.
-        returns the last 5 RSI values and signals based on the RSI values.
+        returns the last 2 RSI values and signals based on the RSI values.
     """
 
 
@@ -111,10 +113,10 @@ def analyse_rsi(data):
 
     for index, row in df.tail(2).iterrows():
         if row["RSI"] > 76.03:
-            response.append({"time": row["time"], "RSI": row["RSI"], "signal": "sell"})
+            response.append(row["RSI"])
         elif row["RSI"] < 21.7:
-            response.append({"time": row["time"], "RSI": row["RSI"], "signal": "buy"})
+            response.append(row["RSI"])
         else:
-            response.append({"time": row["time"], "RSI": row["RSI"], "signal": "hold"})
-    
-    return response
+            response.append(row["RSI"])
+    print(response)
+    return f"High RSI Cap: 76.03, Low RSI Cap: 21.7. last 2 RSI values: {response}"
