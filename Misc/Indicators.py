@@ -1,12 +1,35 @@
 import pandas as pd
+import MetaTrader5 as mt5
 # from Agent.FXAgent import fx_agent
 
 
-def bollinger_bands(rates, period=20, std_multiplier=2):
+def get_pair_info(pair: str, timeframe: int) -> dict:
+    """
+    Get the information of a pair from MetaTrader5 app
+    example pair is "BTCUSDm" on the 15 minutes timeframe
+
+    Args:
+    pair: str
+    timeframe: int
+
+    Returns:
+    dict: The information of the pair as a dictionary
+    """
+    pair_info = mt5.copy_rates_from_pos(pair, timeframe, 0, 20)
+    if pair_info is None:
+        return {"error": "Failed to get pair information"}
+    
+    structured_pair_info = pd.DataFrame(pair_info)
+    structured_pair_info['time'] = pd.to_datetime(structured_pair_info['time'], unit='s')
+    return structured_pair_info.to_dict(orient='records')
+
+
+
+def bollinger_bands(rates: str, period=20, std_multiplier=2):
     if rates is None:
         return {"signal": "hold", "reason": "Not enough data for Bollinger Bands."}
 
-    df = rates
+    df = pd.DataFrame(get_pair_info(rates, mt5.TIMEFRAME_M15))
 
     df['sma'] = df['close'].rolling(window=period).mean()
     df['std'] = df['close'].rolling(window=period).std()
@@ -50,8 +73,7 @@ def moving_average_crossover(rates, short_period=9, long_period=21) -> dict:
     if rates is None:
         return {"signal": "hold", "reason": "Not enough data for moving averages."}
 
-    df = rates
-
+    df = pd.DataFrame(get_pair_info(rates, mt5.TIMEFRAME_M15))
 
     # Calculate moving averages
     df['short_ma'] = df['close'].rolling(window=short_period).mean()
@@ -84,7 +106,7 @@ def calculate_rsi(prices, period=14):
     return rsi
 
 
-def analyse_rsi(data) -> str:
+def analyse_rsi(data: str) -> str:
     """
         Analyse the RSI of a given currency pair and timeframe.
         returns the last 2 RSI values and signals based on the RSI values.
@@ -99,7 +121,7 @@ def analyse_rsi(data) -> str:
         return {"error": "No data retrieved."}
 
     # Create a DataFrame
-    df = data
+    df = pd.DataFrame(get_pair_info(data, mt5.TIMEFRAME_M15))
 
     # Convert 'time' from timestamp to a readable datetime
     # df['time'] = pd.to_datetime(df['time'], unit='s')

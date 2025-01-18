@@ -67,43 +67,43 @@ def login_to_account(ctx: RunContext[Deps]) -> bool:
         return False
 
 
-@fx_agent.tool
-def get_pair_info(ctx: RunContext[Deps]) -> list:
-    """
-    Get the information of a pair from MetaTrader5 app
-    example pair is "BTCUSDm" on the 15 minutes timeframe
+# @fx_agent.tool
+# def get_pair_info(ctx: RunContext[Deps]) -> list:
+#     """
+#     Get the information of a pair from MetaTrader5 app
+#     example pair is "BTCUSDm" on the 15 minutes timeframe
 
-    Args:
-    pair: str
-    timeframe: int
+#     Args:
+#     pair: str
+#     timeframe: int
 
-    Returns:
-    list: The information of the pair as a list of dictionaries
-    """
-    if not mt5.initialize():
-        return {"error": "Failed to initialize MetaTrader5"}
-    pair_info = mt5.copy_rates_from_pos(ctx.deps.pair, ctx.deps.timeframe, 0, 6)
-    if pair_info is None:
-        return {"error": "Failed to get pair information"}
+#     Returns:
+#     list: The information of the pair as a list of dictionaries
+#     """
+#     if not mt5.initialize():
+#         return {"error": "Failed to initialize MetaTrader5"}
+#     pair_info = mt5.copy_rates_from_pos(ctx.deps.pair, ctx.deps.timeframe, 0, 20)
+#     if pair_info is None:
+#         return {"error": "Failed to get pair information"}
     
-    structured_pair_info = pd.DataFrame(pair_info)
-    structured_pair_info['time'] = pd.to_datetime(structured_pair_info['time'], unit='s')
+#     structured_pair_info = pd.DataFrame(pair_info)
+#     structured_pair_info['time'] = pd.to_datetime(structured_pair_info['time'], unit='s')
     
-    return structured_pair_info.to_dict(orient='records')
+#     return structured_pair_info.to_dict(orient='records')
 
 
 
 @fx_agent.tool_plain
-def use_indicators(structured_pair_info: list) -> dict:
+def use_indicators(pair: str) -> dict:
     """
     Use technical indicators to analyse the given currency pair and timeframe.
     Returns the last 5 Bollinger Bands, Moving Average Crossover, and RSI details.
     You can use this information to make trading decisions.
     """
-    df = pd.DataFrame(structured_pair_info)
-    bollinger = bollinger_bands(df)
-    moving_average = moving_average_crossover(df)
-    rsi = analyse_rsi(df)
+    df = pd.DataFrame(pair)
+    bollinger = bollinger_bands(pair)
+    moving_average = moving_average_crossover(pair)
+    rsi = analyse_rsi(pair)
 
     return {
         "bollinger_details": bollinger[-5:],
