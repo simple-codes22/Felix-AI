@@ -55,22 +55,39 @@ def login_to_account(ctx: RunContext[Deps]) -> bool:
     else:
         return False
 
+
+
 @fx_agent.tool_plain
-def use_indicators(pair: str) -> dict:
+def using_bollinger_bands(pair: str) -> str:
     """
-    Use technical indicators to analyse the given currency pair and timeframe.
-    Returns the last 5 Bollinger Bands, Moving Average Crossover, and RSI details.
+    Use Bollinger Bands to analyse the given currency pair and timeframe.
+    Returns the last 5 Bollinger Bands details.
     You can use this information to make trading decisions.
     """
     bollinger = bollinger_bands(pair)
-    moving_average = moving_average_crossover(pair)
-    rsi = analyse_rsi(pair)
+    return bollinger[-5:]
 
-    return {
-        "bollinger_details": bollinger[-5:],
-        "moving_average_details": moving_average,
-        "rsi_details": rsi
-    }
+@fx_agent.tool_plain
+def using_moving_average_crossover(pair: str) -> str:
+    """
+    Use Moving Average Crossover to analyse the given currency pair and timeframe.
+    Returns the last 5 Moving Average Crossover details.
+    You can use this information to make trading decisions.
+    """
+    moving_average = moving_average_crossover(pair)
+    return moving_average
+
+@fx_agent.tool_plain
+def using_rsi(pair: str) -> str:
+    """
+    Use RSI to analyse the given currency pair and timeframe.
+    Returns the last 5 RSI details.
+    You can use this information to make trading decisions.
+    """
+    rsi = analyse_rsi(pair)
+    return rsi
+
+
 
 @fx_agent.tool_plain
 async def execute_trade(symbol: str, action: str, lot_size: float=0.01, number_of_orders: int=1) -> str:
